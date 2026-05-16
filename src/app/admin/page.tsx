@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import { Submission } from '@/types'
@@ -92,11 +93,27 @@ export default async function AdminPage({ searchParams }: PageProps) {
   const tabs = ['pending', 'approved', 'rejected']
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-4 py-10">
-      <div className="max-w-3xl mx-auto">
+    <main className="min-h-screen bg-zinc-950">
+      {/* Admin nav */}
+      <header className="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+        <span className="text-white font-semibold text-sm">Black Atlas Admin</span>
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/businesses" className="text-zinc-400 hover:text-white transition-colors">
+            Businesses
+          </Link>
+          <Link href="/events" className="text-zinc-400 hover:text-white transition-colors">
+            Events
+          </Link>
+          <Link href="/" className="text-amber-400 hover:text-amber-300 transition-colors">
+            ← Back to site
+          </Link>
+        </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-white text-2xl font-bold">Black Atlas Admin</h1>
+            <h1 className="text-white text-2xl font-bold">Submissions</h1>
             <p className="text-zinc-500 text-sm mt-1">
               {pendingCount ?? 0} pending submission{pendingCount !== 1 ? 's' : ''}
             </p>
