@@ -51,3 +51,26 @@ export async function rejectSubmission(submissionId: string) {
 
   revalidatePath('/admin')
 }
+
+export async function approveBusiness(businessId: string) {
+  const supabase = createAdminClient()
+
+  await supabase
+    .from('businesses')
+    .update({ status: 'approved' })
+    .eq('id', businessId)
+
+  revalidatePath('/admin')
+  revalidatePath('/businesses')
+}
+
+export async function rejectBusiness(businessId: string) {
+  const supabase = createAdminClient()
+
+  await supabase
+    .from('businesses')
+    .update({ status: 'rejected' })
+    .eq('id', businessId)
+
+  revalidatePath('/admin')
+}

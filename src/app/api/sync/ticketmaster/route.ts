@@ -4,7 +4,6 @@ import { slugify } from '@/lib/utils'
 
 const TM_API = 'https://app.ticketmaster.com/discovery/v2/events.json'
 
-// Genre/segment IDs that skew toward Black cultural events
 const SEARCHES = [
   { keyword: 'black', classificationName: 'Music' },
   { keyword: 'afrobeats' },
@@ -17,6 +16,17 @@ const SEARCHES = [
   { keyword: 'reggae' },
 ]
 
+type AppCategory =
+  | 'Music' | 'Art' | 'Food & Drink' | 'Film' | 'Comedy'
+  | 'Fashion' | 'Sports' | 'Networking' | 'Community' | 'Faith'
+  | 'Education' | 'Other'
+
+interface TMClassification {
+  segment?: { name: string }
+  genre?: { name: string }
+  subGenre?: { name: string }
+}
+
 interface TMEvent {
   id: string
   name: string
@@ -28,6 +38,7 @@ interface TMEvent {
     start: { dateTime?: string; localDate: string; localTime?: string }
   }
   priceRanges?: { min: number; max: number; currency: string }[]
+  classifications?: TMClassification[]
   _embedded?: {
     venues?: {
       name: string
@@ -38,9 +49,36 @@ interface TMEvent {
   }
 }
 
+function mapCategory(classifications?: TMClassification[]): AppCategory {
+  const c = classifications?.[0]
+  const segment = c?.segment?.name ?? ''
+  const genre = c?.genre?.name ?? ''
+  const sub = c?.subGenre?.name ?? ''
+  const all = [segment, genre, sub].join(' ').toLowerCase()
+
+  if (/gospel|faith|church|worship|spiritual/.test(all)) return 'Faith'
+  if (/comedy|stand.?up|humor/.test(all)) return 'Comedy'
+  if (/film|movie|cinema/.test(all)) return 'Film'
+  if (/sport|basketball|football|soccer|tennis|boxing|fitness/.test(all)) return 'Sports'
+  if (/fashion|style/.test(all)) return 'Fashion'
+  if (/food|drink|culinary|dining|tasting/.test(all)) return 'Food & Drink'
+  if (/art|exhibit|gallery|visual|museum/.test(all)) return 'Art'
+  if (/education|lecture|seminar|workshop|class/.test(all)) return 'Education'
+  if (/network|business|conference|summit/.test(all)) return 'Networking'
+  if (/community|cultural|festival|juneteenth|african|caribbean/.test(all)) return 'Community'
+  if (/music|concert|hip.?hop|r&b|soul|jazz|reggae|afrobeat|rap/.test(all)) return 'Music'
+
+  // Fall back on segment
+  if (segment === 'Music') return 'Music'
+  if (segment === 'Arts & Theatre') return 'Art'
+  if (segment === 'Sports') return 'Sports'
+  if (segment === 'Film') return 'Film'
+
+  return 'Other'
+}
+
 function getBestImage(images: TMEvent['images']): string | null {
   if (!images?.length) return null
-  // Prefer 16:9 ratio images, largest available
   const sorted = [...images].sort((a, b) => b.width - a.width)
   return sorted[0]?.url ?? null
 }
@@ -96,7 +134,6 @@ async function syncTicketmaster() {
     const events: TMEvent[] = data._embedded?.events ?? []
 
     for (const event of events) {
-      // Skip if already imported
       const { data: existing } = await supabase
         .from('events')
         .select('id')
@@ -109,7 +146,8 @@ async function syncTicketmaster() {
       const startDatetime = event.dates.start.dateTime
         ?? `${event.dates.start.localDate}T${event.dates.start.localTime ?? '00:00:00'}`
       const priceRange = event.priceRanges?.[0]
-      const isFree = !priceRange || priceRange.min === 0
+      const isFree = priceRange ? priceRange.min === 0 : false
+      const category = mapCategory(event.classifications)
       const slug = slugify(`${event.name}-${event.id.slice(-6)}`)
 
       const { error } = await supabase.from('events').insert({
@@ -126,7 +164,8 @@ async function syncTicketmaster() {
         ticket_price_min: isFree ? null : (priceRange?.min ?? null),
         ticket_price_max: isFree ? null : (priceRange?.max ?? null),
         cover_image_url: getBestImage(event.images),
-        eventbrite_id: `tm_${event.id}`, // reusing field to track TM events
+        category,
+        eventbrite_id: `tm_${event.id}`,
         status: 'upcoming',
       })
 
