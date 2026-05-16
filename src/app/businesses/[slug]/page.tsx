@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/Navbar'
+import { Navbar } from '@/components/layout/NavbarServer'
 import { Footer } from '@/components/layout/Footer'
 import { fetchBusinessBySlug } from '@/lib/businesses'
 import { CATEGORY_LABELS, DIASPORA_LABELS, formatPhone } from '@/lib/utils'
 import { MapPin, Phone, Globe, BadgeCheck, ArrowLeft, Clock, Link2 } from 'lucide-react'
+import { SaveButton } from '@/components/business/SaveButton'
+import { createClient } from '@/lib/supabase/server'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -18,9 +20,22 @@ const DAY_LABELS: Record<string, string> = {
 
 export default async function BusinessPage({ params }: PageProps) {
   const { slug } = await params
-  const business = await fetchBusinessBySlug(slug)
+  const [business, supabase] = await Promise.all([fetchBusinessBySlug(slug), createClient()])
 
   if (!business) notFound()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let initialSaved = false
+  if (user) {
+    const { data } = await supabase
+      .from('saved_businesses')
+      .select('business_id')
+      .eq('user_id', user.id)
+      .eq('business_id', business.id)
+      .single()
+    initialSaved = !!data
+  }
 
   return (
     <>
@@ -47,6 +62,14 @@ export default async function BusinessPage({ params }: PageProps) {
             <ArrowLeft className="w-4 h-4" />
             Back to businesses
           </Link>
+
+          <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+            <SaveButton
+              businessId={business.id}
+              initialSaved={initialSaved}
+              userId={user?.id ?? null}
+            />
+          </div>
 
           <div className="flex items-start gap-4 mb-6">
             {/* Logo */}

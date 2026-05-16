@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Navbar } from '@/components/layout/Navbar'
+import { Navbar } from '@/components/layout/NavbarServer'
 import { Footer } from '@/components/layout/Footer'
 import { BusinessCard } from '@/components/business/BusinessCard'
 import { BusinessFilters } from '@/components/business/BusinessFilters'
