@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import { Submission } from '@/types'
@@ -6,7 +5,7 @@ import { approveSubmission, rejectSubmission } from './actions'
 import { CheckCircle, XCircle } from 'lucide-react'
 
 interface PageProps {
-  searchParams: Promise<{ secret?: string; tab?: string }>
+  searchParams: Promise<{ tab?: string }>
 }
 
 function SubmissionRow({ submission }: { submission: Submission }) {
@@ -76,10 +75,7 @@ function SubmissionRow({ submission }: { submission: Submission }) {
 }
 
 export default async function AdminPage({ searchParams }: PageProps) {
-  const { secret, tab = 'pending' } = await searchParams
-
-  if (secret !== process.env.ADMIN_SECRET) notFound()
-
+  const { tab = 'pending' } = await searchParams
   const supabase = createAdminClient()
 
   const { data: submissions } = await supabase
@@ -112,7 +108,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
           {tabs.map((t) => (
             <a
               key={t}
-              href={`/admin?secret=${secret}&tab=${t}`}
+              href={`/admin?tab=${t}`}
               className={`text-sm px-4 py-1.5 rounded-full capitalize transition-colors ${
                 tab === t
                   ? 'bg-amber-400 text-black font-medium'
