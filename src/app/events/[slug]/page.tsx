@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Navbar } from '@/components/layout/NavbarServer'
+import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { fetchEventBySlug } from '@/lib/events'
 import { formatPrice } from '@/lib/utils'

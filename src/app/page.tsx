@@ -1,7 +1,75 @@
+"use client";
+
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MapPin, Calendar, Store, Scissors, Utensils, Shirt } from "lucide-react";
+
+const HERO_VIDEOS = [
+  "/12900608_3840_2160_120fps.mp4",
+  "/5044335-uhd_3840_2160_30fps.mp4",
+  "/7008569-hd_1920_1080_25fps.mp4",
+  "/7697533-hd_1920_1080_30fps.mp4",
+  "/8195530-uhd_3840_2160_25fps.mp4",
+];
+
+const CLIP_DURATION = 6;
+const FADE_DURATION = 1500;
+
+function HeroVideoLoop() {
+  const [activeSlot, setActiveSlot] = useState<0 | 1>(0);
+  const [slotSrcs, setSlotSrcs] = useState([HERO_VIDEOS[0], HERO_VIDEOS[1]]);
+  const indexRef = useRef(0);
+  const fadingRef = useRef(false);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null]);
+
+  function handleTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>, slot: 0 | 1) {
+    if (slot !== activeSlot) return;
+    const video = e.currentTarget;
+    if (video.currentTime >= CLIP_DURATION && !fadingRef.current) {
+      fadingRef.current = true;
+      const nextSlot = slot === 0 ? 1 : 0;
+      const nextIndex = (indexRef.current + 1) % HERO_VIDEOS.length;
+
+      // Load next clip into the inactive slot and play it
+      setSlotSrcs((prev) => {
+        const updated = [...prev] as [string, string];
+        updated[nextSlot] = HERO_VIDEOS[nextIndex];
+        return updated;
+      });
+
+      setTimeout(() => {
+        videoRefs.current[nextSlot]?.play();
+        setActiveSlot(nextSlot);
+        indexRef.current = nextIndex;
+        fadingRef.current = false;
+      }, 50);
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {([0, 1] as const).map((slot) => (
+        <video
+          key={slot}
+          ref={(el) => { videoRefs.current[slot] = el; }}
+          src={slotSrcs[slot]}
+          autoPlay={slot === 0}
+          muted
+          playsInline
+          onTimeUpdate={(e) => handleTimeUpdate(e, slot)}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: activeSlot === slot ? 1 : 0,
+            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 bg-black/65" />
+    </div>
+  );
+}
 
 const CATEGORY_LINKS = [
   { href: "/businesses?category=restaurant", label: "Restaurants", icon: Utensils },
@@ -16,8 +84,9 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-black text-white py-24 px-4">
-          <div className="max-w-4xl mx-auto text-center">
+        <section className="relative bg-black text-white py-24 px-4">
+          <HeroVideoLoop />
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
             <div className="flex items-center justify-center gap-2 text-amber-400 text-sm font-medium mb-4 uppercase tracking-widest">
               <MapPin className="w-4 h-4" />
               Denver, Colorado

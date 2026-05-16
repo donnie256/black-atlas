@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/layout/NavbarServer'
+import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { EventCard } from '@/components/events/EventCard'
 import { fetchEvents } from '@/lib/events'

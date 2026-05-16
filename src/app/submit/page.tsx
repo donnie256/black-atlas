@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/layout/NavbarServer'
+import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { submitBusiness } from './actions'
 import { CATEGORY_LABELS } from '@/lib/utils'

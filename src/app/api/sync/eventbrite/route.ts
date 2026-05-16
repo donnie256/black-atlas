@@ -43,12 +43,24 @@ function isRelevantEvent(event: EventbriteEvent): boolean {
   return COMMUNITY_KEYWORDS.some((kw) => text.includes(kw))
 }
 
+// Vercel Cron calls GET; manual triggers use POST with admin secret
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  return syncEventbrite()
+}
+
 export async function POST(req: NextRequest) {
-  // Protect the endpoint
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.ADMIN_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  return syncEventbrite()
+}
+
+async function syncEventbrite() {
 
   const token = process.env.EVENTBRITE_PRIVATE_TOKEN
   if (!token) {
@@ -125,3 +137,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ synced, skipped })
 }
+
