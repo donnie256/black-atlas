@@ -65,7 +65,15 @@ function SubmissionRow({ submission }: { submission: Submission }) {
 
 function BusinessRow({ business }: { business: Business }) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col gap-3">
+      {business.cover_image_url && (
+        <img
+          src={business.cover_image_url}
+          alt={business.name}
+          className="w-full h-40 object-cover"
+        />
+      )}
+      <div className="flex flex-col gap-3 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-white font-semibold">{business.name}</p>
@@ -101,6 +109,7 @@ function BusinessRow({ business }: { business: Business }) {
           </form>
         </div>
       )}
+      </div>
     </div>
   )
 }
