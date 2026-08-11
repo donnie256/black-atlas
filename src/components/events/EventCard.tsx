@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Ticket } from 'lucide-react'
 import { Event } from '@/types'
 
@@ -71,9 +72,12 @@ export function EventCard({ event }: EventCardProps) {
       {/* Cover image strip */}
       {event.cover_image_url && (
         <div className="w-24 shrink-0 hidden sm:block">
-          <img
+          <Image
             src={event.cover_image_url}
             alt={event.title}
+            width={160}
+            height={160}
+            unoptimized
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback } from 'react'
 import { BusinessCategory, DiasporaOrigin } from '@/types'
 import { CATEGORY_LABELS, DIASPORA_LABELS, cn } from '@/lib/utils'
 
@@ -15,18 +14,15 @@ export function BusinessFilters() {
   const activeCategory = params.get('category') as BusinessCategory | null
   const activeDiaspora = params.get('diaspora') as DiasporaOrigin | null
 
-  const updateParam = useCallback(
-    (key: string, value: string | null) => {
-      const next = new URLSearchParams(params.toString())
-      if (value) {
-        next.set(key, value)
-      } else {
-        next.delete(key)
-      }
-      router.push(`/businesses?${next.toString()}`)
-    },
-    [router, params]
-  )
+  const updateParam = (key: string, value: string | null) => {
+    const next = new URLSearchParams(params.toString())
+    if (value) {
+      next.set(key, value)
+    } else {
+      next.delete(key)
+    }
+    router.push(`/businesses?${next.toString()}`)
+  }
 
   const toggle = (key: string, value: string, current: string | null) => {
     updateParam(key, current === value ? null : value)
@@ -39,7 +35,7 @@ export function BusinessFilters() {
         <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-widest mb-3">
           Category
         </h3>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap md:flex-col gap-1">
           {CATEGORIES.map(([value, label]) => (
             <button
               key={value}
@@ -62,7 +58,7 @@ export function BusinessFilters() {
         <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-widest mb-3">
           Community
         </h3>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap md:flex-col gap-1">
           {DIASPORA.map(([value, label]) => (
             <button
               key={value}

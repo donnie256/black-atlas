@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const errText = await res.text()
-      console.error(`Places API error for "${query}": ${res.status} — ${errText}`)
+      console.error(JSON.stringify({ event: 'places_api_error', query, status: res.status, body: errText }))
       continue
     }
 
@@ -162,9 +162,12 @@ export async function POST(req: NextRequest) {
         cover_image_url,
         google_place_id: place.id,
         status: 'pending',
+        source: 'google',
+        is_verified: false,
       })
 
       if (!error) imported++
+      else console.error(JSON.stringify({ event: 'places_import_insert_failed', placeId: place.id, message: error.message }))
 
       await new Promise((r) => setTimeout(r, 150))
     }

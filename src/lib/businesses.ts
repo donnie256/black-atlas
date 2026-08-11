@@ -21,7 +21,12 @@ export async function fetchBusinesses(opts: FetchBusinessesOptions = {}): Promis
 
   if (opts.category) q = q.eq('category', opts.category)
   if (opts.diaspora) q = q.contains('diaspora_origin', [opts.diaspora])
-  if (opts.query) q = q.textSearch('name', opts.query, { type: 'websearch' })
+  if (opts.query) {
+    q = q.textSearch('name_description_subcategory', opts.query, {
+      type: 'websearch',
+      config: 'english',
+    })
+  }
   if (opts.limit) q = q.limit(opts.limit)
   if (opts.offset) q = q.range(opts.offset, opts.offset + (opts.limit ?? 20) - 1)
 

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Event } from '@/types'
 
-type DateFilter = 'weekend' | 'week' | 'month' | 'all'
+export type DateFilter = 'weekend' | 'week' | 'month' | 'all'
 
 interface FetchEventsOptions {
   limit?: number

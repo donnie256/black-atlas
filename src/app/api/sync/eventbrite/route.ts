@@ -88,6 +88,7 @@ async function syncEventbrite() {
     })
 
     if (!res.ok) {
+      console.error(JSON.stringify({ event: 'eventbrite_api_error', status: res.status }))
       return NextResponse.json({ error: `Eventbrite API error: ${res.status}` }, { status: 502 })
     }
 
@@ -123,12 +124,14 @@ async function syncEventbrite() {
           ticket_price_min: event.is_free ? null : price,
           cover_image_url: event.logo?.url ?? null,
           eventbrite_id: event.id,
+          source: 'eventbrite',
           status: 'upcoming',
         },
         { onConflict: 'eventbrite_id' }
       )
 
       if (!error) synced++
+      else console.error(JSON.stringify({ event: 'eventbrite_upsert_failed', eventbriteId: event.id, message: error.message }))
     }
 
     // Avoid hammering the API
@@ -137,4 +140,3 @@ async function syncEventbrite() {
 
   return NextResponse.json({ synced, skipped })
 }
-

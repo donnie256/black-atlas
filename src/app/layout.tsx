@@ -3,8 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Black Atlas Denver",
     template: "%s | Black Atlas Denver",
@@ -21,6 +23,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Black Atlas Denver",
+    url: siteUrl,
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 

@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
+import { Metadata } from 'next'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { fetchBusinessBySlug } from '@/lib/businesses'
@@ -8,6 +10,23 @@ import { MapPin, Phone, Globe, BadgeCheck, ArrowLeft, Clock, Link2 } from 'lucid
 
 interface PageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const business = await fetchBusinessBySlug(slug)
+  if (!business) return { title: 'Business not found' }
+
+  return {
+    title: business.name,
+    description: business.description ?? `${business.name} on Black Atlas Denver.`,
+    alternates: { canonical: `/businesses/${business.slug}` },
+    openGraph: {
+      title: business.name,
+      description: business.description ?? `${business.name} on Black Atlas Denver.`,
+      images: business.cover_image_url ? [business.cover_image_url] : undefined,
+    },
+  }
 }
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
@@ -21,6 +40,13 @@ export default async function BusinessPage({ params }: PageProps) {
   const business = await fetchBusinessBySlug(slug)
 
   if (!business) notFound()
+  const sourceLabel = business.is_verified
+    ? 'Manually verified'
+    : business.google_place_id
+      ? 'Google import, reviewed before publishing'
+      : business.source === 'community'
+        ? 'Community submitted, reviewed before publishing'
+        : null
 
   return (
     <>
@@ -29,9 +55,12 @@ export default async function BusinessPage({ params }: PageProps) {
         {/* Cover */}
         <div className="h-56 sm:h-72 bg-zinc-800 relative">
           {business.cover_image_url && (
-            <img
+            <Image
               src={business.cover_image_url}
               alt={business.name}
+              width={1600}
+              height={640}
+              unoptimized
               className="w-full h-full object-cover"
             />
           )}
@@ -51,9 +80,12 @@ export default async function BusinessPage({ params }: PageProps) {
           <div className="flex items-start gap-4 mb-6">
             {/* Logo */}
             {business.logo_url && (
-              <img
+              <Image
                 src={business.logo_url}
                 alt={`${business.name} logo`}
+                width={64}
+                height={64}
+                unoptimized
                 className="w-16 h-16 rounded-xl object-cover border-2 border-zinc-700 shrink-0"
               />
             )}
@@ -69,6 +101,9 @@ export default async function BusinessPage({ params }: PageProps) {
                   </span>
                 )}
               </div>
+              {sourceLabel && (
+                <p className="text-zinc-500 text-xs mt-2">{sourceLabel}</p>
+              )}
               <p className="text-zinc-400 mt-1">
                 {CATEGORY_LABELS[business.category]}
                 {business.subcategory && ` · ${business.subcategory}`}
@@ -121,10 +156,13 @@ export default async function BusinessPage({ params }: PageProps) {
                   <h2 className="text-white font-semibold mb-3">Photos</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {business.images.map((img) => (
-                      <img
+                      <Image
                         key={img.id}
                         src={img.url}
                         alt={img.alt_text ?? business.name}
+                        width={360}
+                        height={240}
+                        unoptimized
                         className="w-full h-32 object-cover rounded-lg"
                       />
                     ))}

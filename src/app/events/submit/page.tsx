@@ -1,24 +1,60 @@
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { submitEvent } from './actions'
+import Script from 'next/script'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Submit an Event',
+  description: "Submit a Denver Black community event for review on Black Atlas Denver.",
+  alternates: { canonical: '/events/submit' },
+}
 
 const EVENT_CATEGORIES = [
   'Music', 'Art', 'Food & Drink', 'Film', 'Comedy', 'Fashion',
   'Sports', 'Networking', 'Community', 'Faith', 'Education', 'Other',
 ]
 
-export default function SubmitEventPage() {
+interface PageProps {
+  searchParams: Promise<{ error?: string }>
+}
+
+const ERRORS: Record<string, string> = {
+  invalid: 'Please check the form and try again.',
+  challenge: 'Please complete the verification challenge.',
+  rate: 'Too many submissions. Try again later.',
+  server: 'We could not save this event. Try again later.',
+}
+
+export default async function SubmitEventPage({ searchParams }: PageProps) {
+  const { error } = await searchParams
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
   return (
     <>
+      {turnstileSiteKey && <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />}
       <Navbar />
       <main className="flex-1 bg-zinc-950 min-h-screen">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
           <h1 className="text-white text-3xl font-bold mb-2">Submit an Event</h1>
           <p className="text-zinc-400 text-sm mb-8">
-            Got a Black community event in Denver? Submit it and it goes live immediately.
+            Got a Black community event in Denver? Submit it and we&apos;ll review it before it goes live.
           </p>
 
           <form action={submitEvent} className="flex flex-col gap-6">
+            {error && ERRORS[error] && (
+              <p className="bg-red-500/10 border border-red-500/20 text-red-300 text-sm rounded-lg px-3 py-2">
+                {ERRORS[error]}
+              </p>
+            )}
+            <input
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              aria-hidden="true"
+            />
             <section className="flex flex-col gap-4">
               <h2 className="text-white font-semibold text-sm uppercase tracking-widest border-b border-zinc-800 pb-2">
                 Event Details
@@ -184,8 +220,12 @@ export default function SubmitEventPage() {
               Submit Event
             </button>
 
+            {turnstileSiteKey && (
+              <div className="cf-turnstile self-center" data-sitekey={turnstileSiteKey} />
+            )}
+
             <p className="text-zinc-600 text-xs text-center">
-              Events go live immediately. We reserve the right to remove anything not relevant to Denver&apos;s Black community.
+              Events are reviewed before publishing. We reserve the right to remove anything not relevant to Denver&apos;s Black community.
             </p>
           </form>
         </div>

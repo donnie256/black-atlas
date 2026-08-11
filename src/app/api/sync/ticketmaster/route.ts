@@ -126,7 +126,7 @@ async function syncTicketmaster() {
 
     const res = await fetch(`${TM_API}?${params}`)
     if (!res.ok) {
-      console.error(`Ticketmaster error for "${search.keyword}": ${res.status}`)
+      console.error(JSON.stringify({ event: 'ticketmaster_api_error', keyword: search.keyword, status: res.status }))
       continue
     }
 
@@ -166,10 +166,12 @@ async function syncTicketmaster() {
         cover_image_url: getBestImage(event.images),
         category,
         eventbrite_id: `tm_${event.id}`,
+        source: 'ticketmaster',
         status: 'upcoming',
       })
 
       if (!error) synced++
+      else console.error(JSON.stringify({ event: 'ticketmaster_insert_failed', ticketmasterId: event.id, message: error.message }))
     }
 
     await new Promise((r) => setTimeout(r, 200))

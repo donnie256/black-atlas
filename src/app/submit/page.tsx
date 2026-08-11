@@ -3,12 +3,35 @@ import { Footer } from '@/components/layout/Footer'
 import { submitBusiness } from './actions'
 import { CATEGORY_LABELS } from '@/lib/utils'
 import { BusinessCategory } from '@/types'
+import Script from 'next/script'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Submit a Business',
+  description: 'Submit a Black-owned Denver business for review on Black Atlas Denver.',
+  alternates: { canonical: '/submit' },
+}
 
 const CATEGORIES = Object.entries(CATEGORY_LABELS) as [BusinessCategory, string][]
 
-export default function SubmitPage() {
+interface PageProps {
+  searchParams: Promise<{ error?: string }>
+}
+
+const ERRORS: Record<string, string> = {
+  invalid: 'Please check the form and try again.',
+  challenge: 'Please complete the verification challenge.',
+  rate: 'Too many submissions. Try again later.',
+  server: 'We could not save this submission. Try again later.',
+}
+
+export default async function SubmitPage({ searchParams }: PageProps) {
+  const { error } = await searchParams
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
   return (
     <>
+      {turnstileSiteKey && <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />}
       <Navbar />
       <main className="flex-1 bg-zinc-950 min-h-screen">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
@@ -18,6 +41,19 @@ export default function SubmitPage() {
           </p>
 
           <form action={submitBusiness} className="flex flex-col gap-6">
+            {error && ERRORS[error] && (
+              <p className="bg-red-500/10 border border-red-500/20 text-red-300 text-sm rounded-lg px-3 py-2">
+                {ERRORS[error]}
+              </p>
+            )}
+            <input
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              aria-hidden="true"
+            />
             {/* Business info */}
             <section className="flex flex-col gap-4">
               <h2 className="text-white font-semibold text-sm uppercase tracking-widest border-b border-zinc-800 pb-2">
@@ -165,6 +201,10 @@ export default function SubmitPage() {
             >
               Submit Business
             </button>
+
+            {turnstileSiteKey && (
+              <div className="cf-turnstile self-center" data-sitekey={turnstileSiteKey} />
+            )}
 
             <p className="text-zinc-600 text-xs text-center">
               All submissions are reviewed before going live. We&apos;ll reach out if we have questions.

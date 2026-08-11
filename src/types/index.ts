@@ -17,7 +17,21 @@ export type DiasporaOrigin = 'african_american' | 'african' | 'caribbean' | 'pan
 
 export type ListingStatus = 'pending' | 'approved' | 'rejected' | 'archived'
 
-export type EventStatus = 'upcoming' | 'cancelled' | 'past'
+export type EventStatus = 'pending' | 'upcoming' | 'rejected' | 'cancelled' | 'past'
+
+export type EventCategory =
+  | 'Music'
+  | 'Art'
+  | 'Food & Drink'
+  | 'Film'
+  | 'Comedy'
+  | 'Fashion'
+  | 'Sports'
+  | 'Networking'
+  | 'Community'
+  | 'Faith'
+  | 'Education'
+  | 'Other'
 
 export interface Category {
   id: number
@@ -58,6 +72,9 @@ export interface Business {
   status: ListingStatus
   is_verified: boolean
   is_featured: boolean
+  source: string | null
+  verified_at: string | null
+  review_notes: string | null
   google_place_id: string | null
   created_at: string
   updated_at: string
@@ -96,6 +113,8 @@ export interface Event {
   tags: string[] | null
   eventbrite_id: string | null
   status: EventStatus
+  source: string | null
+  review_notes: string | null
   created_at: string
 }
 
@@ -112,6 +131,8 @@ export interface Submission {
   submitter_email: string | null
   notes: string | null
   status: ListingStatus
+  source: string | null
+  review_notes: string | null
   created_at: string
 }
 

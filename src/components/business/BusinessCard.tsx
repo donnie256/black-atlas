@@ -1,13 +1,22 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Phone, Globe, Link2, BadgeCheck } from 'lucide-react'
 import { Business } from '@/types'
-import { CATEGORY_LABELS, DIASPORA_LABELS, cn } from '@/lib/utils'
+import { CATEGORY_LABELS, DIASPORA_LABELS } from '@/lib/utils'
 
 interface BusinessCardProps {
   business: Business
 }
 
 export function BusinessCard({ business }: BusinessCardProps) {
+  const sourceLabel = business.is_verified
+    ? 'Verified'
+    : business.google_place_id
+      ? 'Google import'
+      : business.source === 'community'
+        ? 'Community submitted'
+        : null
+
   return (
     <Link
       href={`/businesses/${business.slug}`}
@@ -16,9 +25,12 @@ export function BusinessCard({ business }: BusinessCardProps) {
       {/* Cover image */}
       <div className="h-40 bg-zinc-800 relative overflow-hidden">
         {business.cover_image_url ? (
-          <img
+          <Image
             src={business.cover_image_url}
             alt={business.name}
+            width={640}
+            height={360}
+            unoptimized
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -29,6 +41,11 @@ export function BusinessCard({ business }: BusinessCardProps) {
         {business.is_featured && (
           <span className="absolute top-2 left-2 bg-amber-400 text-black text-xs font-bold px-2 py-0.5 rounded-full">
             Featured
+          </span>
+        )}
+        {sourceLabel && (
+          <span className="absolute bottom-2 left-2 bg-black/75 text-zinc-200 text-[11px] font-medium px-2 py-0.5 rounded-full">
+            {sourceLabel}
           </span>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { BusinessCard } from '@/components/business/BusinessCard'
@@ -6,6 +7,12 @@ import { BusinessFilters } from '@/components/business/BusinessFilters'
 import { fetchBusinesses } from '@/lib/businesses'
 import { BusinessCategory, DiasporaOrigin } from '@/types'
 import { CATEGORY_LABELS } from '@/lib/utils'
+
+export const metadata: Metadata = {
+  title: 'Businesses',
+  description: 'Discover Black-owned restaurants, barbershops, salons, shops, services, and cultural spaces in Denver.',
+  alternates: { canonical: '/businesses' },
+}
 
 interface PageProps {
   searchParams: Promise<{ category?: string; diaspora?: string; q?: string }>
@@ -67,6 +74,12 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
               className="w-full max-w-md bg-zinc-900 border border-zinc-700 text-white placeholder-zinc-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400"
             />
           </form>
+
+          <div className="md:hidden mb-8 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+            <Suspense>
+              <BusinessFilters />
+            </Suspense>
+          </div>
 
           <div className="flex gap-10">
             {/* Filters sidebar */}

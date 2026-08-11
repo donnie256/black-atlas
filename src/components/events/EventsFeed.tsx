@@ -4,22 +4,25 @@ import { useState, useTransition } from 'react'
 import { EventCard } from './EventCard'
 import { loadMoreEvents } from '@/app/events/actions'
 import { Event } from '@/types'
+import { DateFilter } from '@/lib/events'
 
 const PAGE_SIZE = 20
 
 interface EventsFeedProps {
   initialEvents: Event[]
   hasMore: boolean
+  dateFilter?: DateFilter
+  category?: string
 }
 
-export function EventsFeed({ initialEvents, hasMore: initialHasMore }: EventsFeedProps) {
+export function EventsFeed({ initialEvents, hasMore: initialHasMore, dateFilter, category }: EventsFeedProps) {
   const [events, setEvents] = useState(initialEvents)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [isPending, startTransition] = useTransition()
 
   function loadMore() {
     startTransition(async () => {
-      const next = await loadMoreEvents(events.length)
+      const next = await loadMoreEvents(events.length, { dateFilter, category })
       setEvents((prev) => [...prev, ...next])
       setHasMore(next.length === PAGE_SIZE)
     })

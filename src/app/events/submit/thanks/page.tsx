@@ -12,7 +12,7 @@ export default function EventThanksPage() {
           <CheckCircle className="w-14 h-14 text-green-400 mx-auto mb-4" />
           <h1 className="text-white text-2xl font-bold mb-2">Event submitted</h1>
           <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-            Your event is now live on Black Atlas. Thanks for keeping the community informed.
+            Your event is queued for review. Thanks for keeping the community informed.
           </p>
           <div className="flex gap-3 justify-center">
             <Link

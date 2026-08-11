@@ -1,41 +1,32 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { BusinessCategory } from '@/types'
+import { checkRateLimit, isHoneypotEmpty, verifyTurnstile } from '@/lib/security'
+import { parseBusinessSubmission } from '@/lib/validation'
 import { redirect } from 'next/navigation'
 
 export async function submitBusiness(formData: FormData) {
+  if (!isHoneypotEmpty(formData)) redirect('/submit?error=invalid')
+  if (!(await verifyTurnstile(formData.get('cf-turnstile-response')))) redirect('/submit?error=challenge')
+  if (!(await checkRateLimit('business'))) redirect('/submit?error=rate')
+
   const supabase = await createClient()
+  const parsed = parseBusinessSubmission(formData)
 
-  const name = formData.get('name') as string
-  const category = formData.get('category') as BusinessCategory
-  const address = formData.get('address') as string
-  const phone = formData.get('phone') as string
-  const website = formData.get('website') as string
-  const instagram = formData.get('instagram') as string
-  const description = formData.get('description') as string
-  const submitter_name = formData.get('submitter_name') as string
-  const submitter_email = formData.get('submitter_email') as string
-  const notes = formData.get('notes') as string
-
-  if (!name || !category) return
+  if (!parsed.ok) {
+    console.error(JSON.stringify({ event: 'business_submission_validation_failed', errors: parsed.errors }))
+    redirect('/submit?error=invalid')
+  }
 
   const { error } = await supabase.from('submissions').insert({
-    name,
-    category,
-    address: address || null,
-    phone: phone || null,
-    website: website || null,
-    instagram: instagram || null,
-    description: description || null,
-    submitter_name: submitter_name || null,
-    submitter_email: submitter_email || null,
-    notes: notes || null,
+    ...parsed.value,
+    status: 'pending',
+    source: 'community',
   })
 
   if (error) {
-    console.error('submitBusiness error:', error.message)
-    return
+    console.error(JSON.stringify({ event: 'business_submission_insert_failed', message: error.message }))
+    redirect('/submit?error=server')
   }
 
   redirect('/submit/thanks')

@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
+import { Metadata } from 'next'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { fetchEventBySlug } from '@/lib/events'
@@ -8,6 +10,23 @@ import { Calendar, MapPin, Ticket, ArrowLeft, Link2, ExternalLink } from 'lucide
 
 interface PageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const event = await fetchEventBySlug(slug)
+  if (!event) return { title: 'Event not found' }
+
+  return {
+    title: event.title,
+    description: event.description ?? `${event.title} on Black Atlas Denver.`,
+    alternates: { canonical: `/events/${event.slug}` },
+    openGraph: {
+      title: event.title,
+      description: event.description ?? `${event.title} on Black Atlas Denver.`,
+      images: event.cover_image_url ? [event.cover_image_url] : undefined,
+    },
+  }
 }
 
 function formatFullDate(datetime: string): string {
@@ -40,9 +59,12 @@ export default async function EventPage({ params }: PageProps) {
         {/* Cover */}
         <div className="h-56 sm:h-72 bg-zinc-800 relative">
           {event.cover_image_url && (
-            <img
+            <Image
               src={event.cover_image_url}
               alt={event.title}
+              width={1600}
+              height={640}
+              unoptimized
               className="w-full h-full object-cover"
             />
           )}
@@ -67,6 +89,11 @@ export default async function EventPage({ params }: PageProps) {
             {event.category && (
               <span className="bg-zinc-800 text-zinc-400 text-xs px-2.5 py-0.5 rounded-full">
                 {event.category}
+              </span>
+            )}
+            {event.source && (
+              <span className="bg-zinc-800 text-zinc-500 text-xs px-2.5 py-0.5 rounded-full">
+                {event.source === 'community' ? 'Community submitted' : event.source}
               </span>
             )}
             {event.tags?.map((tag) => (
