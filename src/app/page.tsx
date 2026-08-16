@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MapPin, Calendar, Store, Scissors, Utensils, Shirt } from "lucide-react";
 
-const HERO_VIDEOS = [
+const DESKTOP_HERO_VIDEOS = [
   "/12900608_3840_2160_120fps.mp4",
   "/5044335-uhd_3840_2160_30fps.mp4",
   "/7008569-hd_1920_1080_25fps.mp4",
@@ -14,38 +14,74 @@ const HERO_VIDEOS = [
   "/8195530-uhd_3840_2160_25fps.mp4",
 ];
 
+const MOBILE_HERO_VIDEOS = [
+  "/hero-mobile/12900608-mobile.mp4",
+  "/hero-mobile/5044335-mobile.mp4",
+  "/hero-mobile/7008569-mobile.mp4",
+  "/hero-mobile/7697533-mobile.mp4",
+  "/hero-mobile/8195530-mobile.mp4",
+];
+
 const CLIP_DURATION = 6;
 const FADE_DURATION = 1500;
 
 function HeroVideoLoop() {
+  const [videos, setVideos] = useState<string[] | null>(null);
   const [activeSlot, setActiveSlot] = useState<0 | 1>(0);
-  const [slotSrcs, setSlotSrcs] = useState([HERO_VIDEOS[0], HERO_VIDEOS[1]]);
+  const [slotSrcs, setSlotSrcs] = useState<[string, string] | null>(null);
   const indexRef = useRef(0);
   const fadingRef = useRef(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null]);
 
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+
+    function syncVideoSources() {
+      const nextVideos = media.matches ? MOBILE_HERO_VIDEOS : DESKTOP_HERO_VIDEOS;
+      setVideos(nextVideos);
+      setSlotSrcs([nextVideos[0], nextVideos[1]]);
+      setActiveSlot(0);
+      indexRef.current = 0;
+      fadingRef.current = false;
+    }
+
+    syncVideoSources();
+    media.addEventListener("change", syncVideoSources);
+
+    return () => media.removeEventListener("change", syncVideoSources);
+  }, []);
+
   function handleTimeUpdate(e: React.SyntheticEvent<HTMLVideoElement>, slot: 0 | 1) {
-    if (slot !== activeSlot) return;
+    if (!videos || slot !== activeSlot) return;
     const video = e.currentTarget;
     if (video.currentTime >= CLIP_DURATION && !fadingRef.current) {
       fadingRef.current = true;
       const nextSlot = slot === 0 ? 1 : 0;
-      const nextIndex = (indexRef.current + 1) % HERO_VIDEOS.length;
+      const nextIndex = (indexRef.current + 1) % videos.length;
 
       // Load next clip into the inactive slot and play it
       setSlotSrcs((prev) => {
+        if (!prev) return prev;
         const updated = [...prev] as [string, string];
-        updated[nextSlot] = HERO_VIDEOS[nextIndex];
+        updated[nextSlot] = videos[nextIndex];
         return updated;
       });
 
       setTimeout(() => {
-        videoRefs.current[nextSlot]?.play();
+        void videoRefs.current[nextSlot]?.play();
         setActiveSlot(nextSlot);
         indexRef.current = nextIndex;
         fadingRef.current = false;
       }, 50);
     }
+  }
+
+  if (!slotSrcs) {
+    return (
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-black" />
+      </div>
+    );
   }
 
   return (
@@ -58,6 +94,7 @@ function HeroVideoLoop() {
           autoPlay={slot === 0}
           muted
           playsInline
+          preload={slot === activeSlot ? "auto" : "metadata"}
           onTimeUpdate={(e) => handleTimeUpdate(e, slot)}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
