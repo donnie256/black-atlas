@@ -15,20 +15,22 @@ export function BrandMark({ className }: BrandMarkProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect x="1.5" y="1.5" width="61" height="61" rx="13" fill="#09090B" stroke="#D49A24" strokeWidth="3" />
-      <path d="M9 20L21 14L33 20L45 14L55 19V45L43 51L31 45L19 51L9 46V20Z" fill="#27272A" />
-      <path d="M21 14V39L19 51" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-      <path d="M33 20V45" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-      <path d="M45 14V39L43 51" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+      <path d="M10 18L24 12V47L10 53V18Z" fill="#F4F4F5" />
+      <path d="M24 12L40 18V53L24 47V12Z" fill="#D4D4D8" />
+      <path d="M40 18L54 12V47L40 53V18Z" fill="#F4F4F5" />
+      <path d="M24 12V47" stroke="#18181B" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M40 18V53" stroke="#18181B" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M10 18L24 12L40 18L54 12" stroke="#18181B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 53L24 47L40 53L54 47" stroke="#18181B" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
       <path
-        d="M12 35C19 29 24 31 31 37C38 43 45 40 53 31"
+        d="M13 38C20 31 27 33 33 38C39 43 46 39 52 31"
         stroke="#D49A24"
-        strokeWidth="3.8"
+        strokeWidth="4"
         strokeLinecap="round"
-        strokeDasharray="5 5"
       />
-      <path d="M37 12C37 7.6 40.6 4 45 4C49.4 4 53 7.6 53 12C53 18.7 45 27 45 27C45 27 37 18.7 37 12Z" fill="#D49A24" />
-      <circle cx="45" cy="12" r="3.4" fill="#F4F4F5" />
-      <circle cx="54" cy="31" r="5.2" fill="#B4232A" stroke="#FFFFFF" strokeWidth="2.4" />
+      <path d="M36 17C36 11.5 40.5 7 46 7C51.5 7 56 11.5 56 17C56 25.6 46 36 46 36C46 36 36 25.6 36 17Z" fill="#D49A24" stroke="#09090B" strokeWidth="2" />
+      <circle cx="46" cy="17" r="4" fill="#FFFFFF" />
+      <circle cx="14" cy="38" r="4.4" fill="#B4232A" stroke="#09090B" strokeWidth="2" />
     </svg>
   )
 }
