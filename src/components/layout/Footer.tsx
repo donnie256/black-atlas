@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BrandLogo } from './BrandLogo'
 
 export function Footer() {
   return (
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <p className="text-white font-bold text-lg">Black Atlas</p>
+            <BrandLogo markClassName="h-8 w-8" textClassName="text-lg" />
             <p className="text-sm mt-2 leading-relaxed">
               Connecting Denver&apos;s Black community — African American, African, and Caribbean.
             </p>
@@ -38,7 +39,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-zinc-800 mt-8 pt-6 text-xs">
-          &copy; {new Date().getFullYear()} Black Atlas Denver. Built for the community.
+          &copy; {new Date().getFullYear()} Black Atlas. Built for the community.
         </div>
       </div>
     </footer>

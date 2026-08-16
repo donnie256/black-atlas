@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { MapPin } from 'lucide-react'
+import { BrandLogo } from './BrandLogo'
 
 const NAV_LINKS = [
   { href: '/businesses', label: 'Businesses' },
@@ -18,10 +18,8 @@ export function Navbar() {
     <header className="bg-black text-white sticky top-0 z-50 border-b border-zinc-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-            <MapPin className="w-5 h-5 text-amber-400" />
-            <span>Black Atlas</span>
-            <span className="text-zinc-400 text-sm font-normal">Denver</span>
+          <Link href="/" aria-label="Black Atlas home">
+            <BrandLogo textClassName="text-xl" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
