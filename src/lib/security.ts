@@ -68,7 +68,7 @@ export async function verifyTurnstile(token: FormDataEntryValue | null): Promise
   const secret = process.env.TURNSTILE_SECRET_KEY
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-  if (!secret && !siteKey && process.env.NODE_ENV !== 'production') return true
+  if (!secret && !siteKey) return true
   if (!secret || typeof token !== 'string' || token.length === 0) return false
 
   const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -88,4 +88,3 @@ export async function verifyTurnstile(token: FormDataEntryValue | null): Promise
 export function isHoneypotEmpty(formData: FormData): boolean {
   return !formData.get('company_website')
 }
-
