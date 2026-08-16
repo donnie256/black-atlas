@@ -2,9 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
+import { JsonLd } from '@/components/JsonLd'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { fetchEventBySlug } from '@/lib/events'
+import { buildEventJsonLd } from '@/lib/seo'
 import { formatPrice } from '@/lib/utils'
 import { Calendar, MapPin, Ticket, ArrowLeft, Link2, ExternalLink } from 'lucide-react'
 
@@ -54,6 +56,7 @@ export default async function EventPage({ params }: PageProps) {
 
   return (
     <>
+      <JsonLd data={buildEventJsonLd(event)} />
       <Navbar />
       <main className="flex-1 bg-zinc-950 min-h-screen">
         {/* Cover */}

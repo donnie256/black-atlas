@@ -78,6 +78,8 @@ export async function fetchEventBySlug(slug: string): Promise<Event | null> {
     .from('events')
     .select('*, business:businesses(id, name, slug)')
     .eq('slug', slug)
+    .eq('status', 'upcoming')
+    .gte('start_datetime', new Date().toISOString())
     .single()
 
   if (error) return null

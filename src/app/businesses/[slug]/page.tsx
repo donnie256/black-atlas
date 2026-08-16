@@ -2,9 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
+import { JsonLd } from '@/components/JsonLd'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { fetchBusinessBySlug } from '@/lib/businesses'
+import { buildBusinessJsonLd } from '@/lib/seo'
 import { CATEGORY_LABELS, DIASPORA_LABELS, formatPhone } from '@/lib/utils'
 import { MapPin, Phone, Globe, BadgeCheck, ArrowLeft, Clock, Link2 } from 'lucide-react'
 
@@ -50,6 +52,7 @@ export default async function BusinessPage({ params }: PageProps) {
 
   return (
     <>
+      <JsonLd data={buildBusinessJsonLd(business)} />
       <Navbar />
       <main className="flex-1 bg-zinc-950 min-h-screen">
         {/* Cover */}
