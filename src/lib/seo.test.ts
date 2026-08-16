@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { Business, Event } from '@/types'
 import { buildBusinessJsonLd, buildEventJsonLd, getBusinessSchemaType } from './seo'
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
+
 const baseBusiness: Business = {
   id: 'business-1',
   slug: 'test-business',
@@ -82,7 +84,7 @@ describe('buildBusinessJsonLd', () => {
 
     expect(jsonLd['@type']).toBe('GroceryStore')
     expect(jsonLd.name).toBe('Test Business')
-    expect(jsonLd.url).toBe('http://localhost:3000/businesses/test-business')
+    expect(jsonLd.url).toBe(`${siteUrl}/businesses/test-business`)
     expect(jsonLd.address).toMatchObject({
       '@type': 'PostalAddress',
       streetAddress: '123 Main St',
@@ -107,7 +109,7 @@ describe('buildEventJsonLd', () => {
     expect(jsonLd.organizer).toMatchObject({
       '@type': 'Organization',
       name: 'Test Business',
-      url: 'http://localhost:3000/businesses/test-business',
+      url: `${siteUrl}/businesses/test-business`,
     })
     expect(jsonLd.offers).toMatchObject({
       '@type': 'AggregateOffer',
